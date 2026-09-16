@@ -3,14 +3,14 @@
 Panel de administración moderno y minimalista desarrollado para la gestión de inventario, productos y órdenes de la tienda de skate. 
 ---
 
-## 🚀 Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
 * **React** (con Vite) para un entorno de desarrollo rápido y eficiente.
 * **TypeScript** para un tipado estático robusto.
 
 ---
 
-## ✨ Características Principales
+## Características Principales
 
 * **Gestión de Inventario (Productos):** 
   * Visualización y control de patinetas, repuestos y accesorios disponibles en la tienda.
@@ -22,7 +22,7 @@ Panel de administración moderno y minimalista desarrollado para la gestión de 
 
 ---
 
-## 📂 Estructura del Proyecto
+## Estructura del Proyecto
 
 Skates-admin/
 ├── public/             # Recursos estáticos e iconos
