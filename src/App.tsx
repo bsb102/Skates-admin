@@ -1,8 +1,39 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { obtenerCatalogo, type Skate } from './api'
+import { cerrarSesion, iniciarSesion } from './auth'
 import './App.css'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products')
+  const [skates, setSkates] = useState<Skate[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [usuario, setUsuario] = useState('')
+  const [clave, setClave] = useState('')
+  const [autenticado, setAutenticado] = useState(() => Boolean(localStorage.getItem('skates-token')))
+  const [errorLogin, setErrorLogin] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!autenticado) return
+    obtenerCatalogo()
+      .then(setSkates)
+      .catch(() => setError('No se pudo cargar el inventario.'))
+  }, [autenticado])
+
+  if (!autenticado) {
+    return (
+      <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', backgroundColor: '#0f172a', color: '#f8fafc' }}>
+        <form onSubmit={(event) => { event.preventDefault(); iniciarSesion(usuario, clave).then(() => setAutenticado(true)).catch((loginError: Error) => setErrorLogin(loginError.message)); }} style={{ width: 'min(420px, 90vw)', padding: '32px', backgroundColor: '#1e293b', borderRadius: '12px' }}>
+          <p style={{ color: '#f97316', fontWeight: 700 }}>SKATES ADMIN LOCAL</p>
+          <h1>Acceso de administrador</h1>
+          <input value={usuario} onChange={(event) => setUsuario(event.target.value)} placeholder='Usuario' style={{ display: 'block', width: '100%', marginBottom: '12px', padding: '12px', boxSizing: 'border-box' }} />
+          <input type='password' value={clave} onChange={(event) => setClave(event.target.value)} placeholder='Contraseña' style={{ display: 'block', width: '100%', marginBottom: '12px', padding: '12px', boxSizing: 'border-box' }} />
+          <button type='submit'>Entrar</button>
+          {errorLogin && <p style={{ color: '#fca5a5' }}>{errorLogin}</p>}
+          <small>Demo local: admin / admin123</small>
+        </form>
+      </main>
+    )
+  }
 
   return (
     <div style={{ display: 'flex', width: '100vw', height: '100vh', fontFamily: "'Inter', sans-serif", backgroundColor: '#0f172a', color: '#f8fafc', overflow: 'hidden' }}>
@@ -70,7 +101,7 @@ export default function App() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#1e293b', padding: '8px 16px', borderRadius: '20px', border: '1px solid #334155' }}>
             <span style={{ width: '8px', height: '8px', backgroundColor: '#22c55e', borderRadius: '50%', display: 'inline-block' }}></span>
-            <span style={{ fontSize: '14px', fontWeight: '500', color: '#cbd5e1' }}>Sistema Conectado</span>
+            <button type='button' onClick={() => { cerrarSesion(); setAutenticado(false) }} style={{ fontSize: '12px', padding: '6px 10px' }}>Salir</button>
           </div>
         </header>
 
@@ -83,7 +114,18 @@ export default function App() {
                   + Agregar Nuevo Producto
                 </button>
               </div>
-              <p style={{ color: '#94a3b8', fontSize: '14px' }}>Aquí podrás dar de alta, modificar precios o eliminar los artículos disponibles en la tienda.</p>
+              <p style={{ color: '#94a3b8', fontSize: '14px' }}>{error ?? `${skates.length} productos cargados desde el backend.`}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '14px', marginTop: '24px' }}>
+                {skates.map((skate) => (
+                  <article key={skate.id} style={{ padding: '18px', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px' }}>
+                    <small style={{ color: '#f97316' }}>{skate.modelo}</small>
+                    <h4 style={{ margin: '8px 0', color: '#f8fafc', fontSize: '18px' }}>{skate.marca}</h4>
+                    <p style={{ margin: 0, color: '#94a3b8', fontSize: '13px' }}>
+                      {skate.medida ? `Medida ${skate.medida}"` : `Wheelbase ${skate.wheelbase}"`} · Stock {skate.stock}
+                    </p>
+                  </article>
+                ))}
+              </div>
             </div>
           ) : (
             <div>

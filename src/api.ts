@@ -1,11 +1,11 @@
-import { fetchAuthSession } from "aws-amplify/auth";
 import { config } from "./config";
 
 export interface Skate {
   id: number;
   modelo: string;
   marca: string;
-  medida: number;
+  medida: number | null;
+  wheelbase: number | null;
   stock: number;
 }
 
@@ -17,8 +17,7 @@ export interface NuevoSkate {
 }
 
 export async function apiFetch(path: string, options: RequestInit = {}): Promise<Response> {
-  const session = await fetchAuthSession();
-  const token = session.tokens?.accessToken?.toString();
+  const token = localStorage.getItem("skates-token");
 
   return fetch(`${config.apiUrl}${path}`, {
     ...options,
@@ -28,6 +27,14 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
+}
+
+export async function obtenerCatalogo(): Promise<Skate[]> {
+  const res = await apiFetch("/api/skate");
+  if (!res.ok) {
+    throw new Error(`El backend respondió ${res.status} al pedir el inventario`);
+  }
+  return res.json();
 }
 
 export async function agregarSkate(datos: NuevoSkate): Promise<Skate> {
