@@ -94,7 +94,7 @@ export default function App() {
               gap: '10px'
             }}
           >
-            📦 Gestión de Productos
+           Gestión de Productos
           </button>
           
           <button 
@@ -114,7 +114,7 @@ export default function App() {
               gap: '10px'
             }}
           >
-            📋 Órdenes y Pedidos
+           Órdenes y Pedidos
           </button>
         </nav>
       </aside>
